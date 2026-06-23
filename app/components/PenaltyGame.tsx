@@ -4,8 +4,8 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 
 type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'meme' | 'info'
 
-// kick 0 = goal, kick 1 = goal, kick 2 = miss (always)
-const KICK_OUTCOMES: boolean[] = [true, true, false]
+// kick 0 = miss, kick 1 = goal, kick 2 = goal (always)
+const KICK_OUTCOMES: boolean[] = [false, true, true]
 
 interface SecuritySection {
   icon: string
@@ -275,14 +275,25 @@ export default function PenaltyGame() {
           setHorizontalAim(50)
           setVerticalAim(50)
           setPower(50)
-          // Still kicks remaining — go back to aiming
-          setPhase('aiming')
+          if (newKicksPlayed < KICK_OUTCOMES.length) {
+            setPhase('aiming')
+          } else {
+            // Last kick — go to meme, then auto-advance to module
+            setPhase('meme')
+          }
         }, 2200)
       } else {
-        // Final miss — go to meme then module
+        // Miss — auto-advance to next kick after brief pause
         setShotResult('missed')
         setSaves((prev) => prev + 1)
         setPhase('result')
+        setTimeout(() => {
+          setShotResult(null)
+          setHorizontalAim(50)
+          setVerticalAim(50)
+          setPower(50)
+          setPhase('aiming')
+        }, 2000)
       }
     }, 900)
   }, [phase, kicksPlayed])
@@ -379,6 +390,15 @@ export default function PenaltyGame() {
       const timer = setTimeout(() => setShowIntroBall(false), 1500)
       return () => clearTimeout(timer)
     }
+    if (phase === 'meme') {
+      const timer = setTimeout(() => {
+        setPhase('info')
+        setActivePage(0)
+        setSlideDir('forward')
+        setStars(1)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
   }, [phase])
 
   return (
@@ -412,17 +432,17 @@ export default function PenaltyGame() {
               </p>
             </div>
 
-            <button
-              onClick={() => {
-                setPhase('info')
-                setActivePage(0)
-                setSlideDir('forward')
-                setStars(1)
-              }}
-              className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-10 py-4 rounded-full text-sm tracking-widest uppercase transition-all shadow-xl active:scale-95 animate-pulse-soft w-full max-w-xs"
-            >
-              🔐 Ver módulo de seguridad
-            </button>
+            <div className="flex flex-col items-center gap-2 w-full max-w-xs">
+              <div className="text-[#00A99D] text-xs font-bold animate-pulse-soft">
+                Cargando módulo de seguridad…
+              </div>
+              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#00A99D] rounded-full"
+                  style={{ animation: 'grow5s 5s linear forwards' }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -805,19 +825,11 @@ export default function PenaltyGame() {
                     )}
                     {shotResult === 'missed' && (
                       <div>
-                        <div className="text-5xl mb-2">💨🇨🇬</div>
-                        <div className="text-2xl font-black text-amber-500 drop-shadow-lg">¡FALLASTE!</div>
+                        <div className="text-5xl mb-2">💨</div>
+                        <div className="text-2xl font-black text-amber-500 drop-shadow-lg">¡DESVIADO!</div>
                         <div className="text-white/80 text-xs mt-2 font-semibold">
-                          Dos goles y en el último te atraparon.
+                          ¡El tiro se fue fuera! Sigue intentando…
                         </div>
-                        <button
-                          onClick={() => {
-                            setPhase('meme')
-                          }}
-                          className="mt-4 bg-[#00A99D] hover:bg-[#008B81] text-white font-extrabold px-6 py-2.5 rounded-full transition-all shadow-md text-xs tracking-wider uppercase active:scale-95"
-                        >
-                          🔐 Ver módulo de seguridad
-                        </button>
                       </div>
                     )}
                   </div>
@@ -901,7 +913,7 @@ export default function PenaltyGame() {
                     className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-8 py-3.5 rounded-full text-sm sm:text-base transition-all duration-200 shadow-xl shadow-[#00A99D]/30 hover:shadow-[#00A99D]/50 active:scale-[0.96] flex items-center gap-2 tracking-wider uppercase border-2 border-white animate-pulse-soft"
                   >
                     <span>⚽</span>
-                    <span>¡Disparar! ({kicksPlayed + 1}/3)</span>
+                    <span>¡Disparar!</span>
                   </button>
                 </div>
               )}
@@ -914,10 +926,9 @@ export default function PenaltyGame() {
                 >
                   <div className="max-w-md animate-fade-in flex flex-col items-center">
                     <img src="/logo.png" className="w-24 h-24 mb-6 object-contain rounded-2xl shadow-lg border-2 border-white/20 bg-white/10 p-2" alt="Alegra Logo" />
-                    <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight uppercase tracking-widest drop-shadow-md mb-4">
+                    <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight uppercase tracking-widest drop-shadow-md mb-8">
                       Alegra gol
                     </h1>
-                    <p className="text-white/50 text-xs mb-8 font-medium">Tienes 3 tiros — 2 golazos y 1 trampa de seguridad</p>
                     <span className="text-xs text-white/60 tracking-[0.2em] uppercase animate-pulse font-black bg-white/10 px-4 py-2 rounded-full border border-white/10">
                       Haz clic para comenzar
                     </span>
