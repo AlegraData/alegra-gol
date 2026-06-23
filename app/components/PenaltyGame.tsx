@@ -396,7 +396,7 @@ export default function PenaltyGame() {
         setActivePage(0)
         setSlideDir('forward')
         setStars(1)
-      }, 5000)
+      }, 10000)
       return () => clearTimeout(timer)
     }
   }, [phase])
@@ -439,7 +439,7 @@ export default function PenaltyGame() {
               <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#00A99D] rounded-full"
-                  style={{ animation: 'grow5s 5s linear forwards' }}
+                  style={{ animation: 'grow10s 10s linear forwards' }}
                 />
               </div>
             </div>
