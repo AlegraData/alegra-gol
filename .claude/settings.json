@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Alegra_Design_MCP__get_token",
+      "mcp__claude_ai_Alegra_Design_MCP__get_design_spec"
+    ]
+  }
+}
