@@ -402,7 +402,7 @@ export default function PenaltyGame() {
         setActivePage(0)
         setSlideDir('forward')
         setStars(1)
-      }, 10000)
+      }, 20000)
       return () => clearTimeout(timer)
     }
   }, [phase])
@@ -438,14 +438,25 @@ export default function PenaltyGame() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-2 w-full max-w-xs">
-              <div className="text-[#00A99D] text-xs font-bold animate-pulse-soft">
-                Cargando módulo de seguridad…
+            <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+              <button
+                onClick={() => {
+                  setPhase('info')
+                  setActivePage(0)
+                  setSlideDir('forward')
+                  setStars(1)
+                }}
+                className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-10 py-4 rounded-full text-sm tracking-widest uppercase transition-all shadow-xl active:scale-95 w-full"
+              >
+                🔐 Ir al módulo de seguridad
+              </button>
+              <div className="text-[#00A99D] text-[11px] font-semibold opacity-70">
+                o espera, carga automáticamente…
               </div>
               <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#00A99D] rounded-full"
-                  style={{ animation: 'grow10s 10s linear forwards' }}
+                  style={{ animation: 'grow20s 20s linear forwards' }}
                 />
               </div>
             </div>
