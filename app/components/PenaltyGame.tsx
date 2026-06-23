@@ -417,7 +417,7 @@ export default function PenaltyGame() {
               </p>
             </div>
 
-            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-full max-w-xs">
+            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-48">
               <img
                 src="/dot-security.jpg"
                 alt="Meme perro ciberseguridad"
