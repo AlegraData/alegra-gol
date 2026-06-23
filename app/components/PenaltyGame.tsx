@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 
-type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'info'
+type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'meme' | 'info'
 
 // kick 0 = miss, kick 1 = goal, kick 2 = goal (always)
 const KICK_OUTCOMES: boolean[] = [false, true, true]
@@ -85,7 +85,6 @@ Plataforma Alegra → CRM
     type: 'content',
     icon: '🤖',
     title: 'IA y Datos Personales',
-    imageUrl: '/dot-security-2.jpg',
     problem: 'ChatGPT, Gemini y similares pueden guardar lo que les escribes. Si pegas datos personales reales, esa información sale de Alegra hacia servidores externos.',
     example: 'Copiar nombre, cédula e ingresos de un cliente en ChatGPT para generar un informe — datos personales reales en servidores de OpenAI.',
     solution: 'Usa IA con datos ficticios. El resultado es igual de útil. Reemplaza "Carlos Pérez, $8.5M" por "Cliente X, $N millones".',
@@ -230,8 +229,8 @@ export default function PenaltyGame() {
           if (newKicksPlayed < KICK_OUTCOMES.length) {
             setPhase('aiming')
           } else {
-            // Last kick — go directly to info module
-            setPhase('info')
+            // Last kick — go to meme screen, user clicks to proceed
+            setPhase('meme')
           }
         }, 2200)
       } else {
@@ -364,16 +363,72 @@ export default function PenaltyGame() {
       const timer = setTimeout(() => setShowIntroBall(false), 1500)
       return () => clearTimeout(timer)
     }
-    if (phase === 'info') {
-      setActivePage(0)
-      setSlideDir('forward')
-      setStars(1)
-      setQuizAnswers({})
-    }
   }, [phase])
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4 sm:p-6 bg-[#E2E8F0] font-sans">
+
+      {/* MEME TRANSITION */}
+      {phase === 'meme' && (
+        <div className="fixed inset-0 z-50 bg-[#F8FAFF] animate-presentation-enter overflow-y-auto">
+          <div className="max-w-lg mx-auto flex flex-col items-center gap-6 px-6 py-10">
+
+            {/* Title */}
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-black text-[#002F6C] leading-tight">
+                Hablemos de tratamiento de datos 🔐
+              </p>
+              <p className="text-slate-500 text-sm mt-3 leading-relaxed">
+                Mientras celebras los goles, los datos de tus clientes y compañeros necesitan tu protección.
+              </p>
+            </div>
+
+            {/* 3 cards */}
+            <div className="flex flex-col gap-3 w-full">
+              <div className="flex items-start gap-4 bg-white border border-red-200 rounded-2xl p-4 shadow-sm">
+                <span className="text-2xl shrink-0">🧑</span>
+                <div>
+                  <p className="font-black text-[#002F6C] text-sm">Datos personales</p>
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">Cualquier dato que identifique a una persona — cliente, colaborador o proveedor — requiere protección especial.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 bg-white border border-amber-200 rounded-2xl p-4 shadow-sm">
+                <span className="text-2xl shrink-0">🤖</span>
+                <div>
+                  <p className="font-black text-[#002F6C] text-sm">IA y privacidad</p>
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">Herramientas como ChatGPT o Gemini pueden guardar lo que escribes. Nunca pegues datos reales de personas.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-4 bg-white border border-emerald-200 rounded-2xl p-4 shadow-sm">
+                <span className="text-2xl shrink-0">📵</span>
+                <div>
+                  <p className="font-black text-[#002F6C] text-sm">Canales oficiales</p>
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">Datos personales solo por los canales autorizados de Alegra — nunca por WhatsApp personal o correo no corporativo.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Image */}
+            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-52">
+              <img src="/dot-security-2.jpg" alt="Meme seguridad" className="w-full h-auto" />
+            </div>
+
+            {/* Button */}
+            <button
+              onClick={() => {
+                setPhase('info')
+                setActivePage(0)
+                setSlideDir('forward')
+                setStars(1)
+                setQuizAnswers({})
+              }}
+              className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-10 py-4 rounded-full text-sm tracking-widest uppercase transition-all shadow-xl active:scale-95 w-full max-w-xs"
+            >
+              Ver los módulos ➡
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FULLSCREEN INFO OVERLAY */}
       {phase === 'info' && (
@@ -524,14 +579,6 @@ export default function PenaltyGame() {
                       ))}
                     </div>
 
-                    {/* Optional meme/image */}
-                    {sections[activePage].imageUrl && (
-                      <div className="flex justify-center pb-2">
-                        <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-slate-200 max-w-[220px]">
-                          <img src={sections[activePage].imageUrl} alt="meme" className="w-full h-auto" />
-                        </div>
-                      </div>
-                    )}
                   </>
                 )}
 
