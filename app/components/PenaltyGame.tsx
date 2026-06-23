@@ -344,7 +344,7 @@ export default function PenaltyGame() {
             {/* Meme image */}
             <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-full max-w-xs">
               <img
-                src="/meme-dog.jpg"
+                src="/dot-security.jpg"
                 alt="Meme perro ciberseguridad"
                 className="w-full h-auto"
               />
