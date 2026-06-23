@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 
-type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'info'
+type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'meme' | 'info'
 
 interface SecuritySection {
   icon: string
@@ -201,13 +201,10 @@ export default function PenaltyGame() {
           setGoals((prev) => prev + 1)
           setPhase('result')
           setCelebrating(true)
-          
+
           setTimeout(() => {
             setCelebrating(false)
-            setPhase('info')
-            setActivePage(0)
-            setSlideDir('forward')
-            setStars(1)
+            setPhase('meme')
           }, 1500)
         }
       }
@@ -329,13 +326,62 @@ export default function PenaltyGame() {
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4 sm:p-6 bg-[#E2E8F0] font-sans">
 
+      {/* MEME TRANSITION — aparece tras marcar gol */}
+      {phase === 'meme' && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white animate-presentation-enter overflow-y-auto p-6">
+          <div className="max-w-sm w-full flex flex-col items-center gap-5 py-8">
+
+            {/* Hook */}
+            <div className="text-center">
+              <p className="text-3xl sm:text-4xl font-black text-[#002F6C] leading-tight">
+                ¡Como caíste! 🎣
+              </p>
+              <p className="text-sm text-slate-400 mt-1 font-medium">
+                Pensabas que ibas a recibir el premio...
+              </p>
+            </div>
+
+            {/* Meme image */}
+            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-full max-w-xs">
+              <img
+                src="/meme-dog.jpg"
+                alt="Meme perro ciberseguridad"
+                className="w-full h-auto"
+              />
+            </div>
+
+            {/* Mensaje */}
+            <div className="text-center bg-[#002F6C]/5 border border-[#002F6C]/10 rounded-2xl p-5">
+              <p className="text-base font-semibold text-slate-700 leading-relaxed">
+                Ahora que caíste en la trampa... 🔐<br />
+                Ve al módulo y aprende a{' '}
+                <span className="text-[#00A99D] font-black">no dejar que te anoten goles de seguridad</span>.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => {
+                setPhase('info')
+                setActivePage(0)
+                setSlideDir('forward')
+                setStars(1)
+              }}
+              className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-10 py-4 rounded-full text-sm tracking-widest uppercase transition-all shadow-xl active:scale-95 animate-pulse-soft w-full max-w-xs"
+            >
+              🔐 Ver módulo de seguridad
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* FULLSCREEN PRESENTATION OVERLAY — Info Phase */}
       {phase === 'info' && (
-        <div className="fixed inset-0 z-50 bg-[#0A1628] flex flex-col animate-presentation-enter">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col animate-presentation-enter">
 
           {/* Header bar */}
-          <div className="flex items-center justify-between px-6 sm:px-10 py-4 border-b border-white/10 shrink-0">
-            <span className="text-white/50 text-[10px] sm:text-xs font-black uppercase tracking-widest">
+          <div className="flex items-center justify-between px-6 sm:px-10 py-4 border-b border-slate-200 shrink-0">
+            <span className="text-[#002F6C]/60 text-[10px] sm:text-xs font-black uppercase tracking-widest">
               Módulos de Seguridad
             </span>
 
@@ -354,7 +400,7 @@ export default function PenaltyGame() {
                       width: i === activePage ? '24px' : '8px',
                       height: '8px',
                       borderRadius: '9999px',
-                      backgroundColor: i <= activePage ? '#00A99D' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: i <= activePage ? '#00A99D' : '#CBD5E1',
                       transition: 'all 0.3s',
                     }}
                   />
@@ -362,13 +408,13 @@ export default function PenaltyGame() {
               </div>
             )}
 
-            <span className="text-white/40 text-[10px] sm:text-xs font-bold">
+            <span className="text-slate-400 text-[10px] sm:text-xs font-bold">
               {activePage < 5 ? `${activePage + 1} / 5` : '✓ Completado'}
             </span>
           </div>
 
           {/* Scrollable slide content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto bg-[#F8FAFF]">
             {activePage < 5 ? (
               <div
                 key={activePage}
@@ -378,7 +424,7 @@ export default function PenaltyGame() {
                 <div className="flex items-center gap-4">
                   <span className="text-5xl sm:text-6xl select-none">{sections[activePage].icon}</span>
                   <div>
-                    <h2 className="text-2xl sm:text-4xl font-black text-white tracking-wide leading-tight">
+                    <h2 className="text-2xl sm:text-4xl font-black text-[#002F6C] tracking-wide leading-tight">
                       {sections[activePage].title}
                     </h2>
                     <p className="text-[#00A99D] text-xs sm:text-sm font-bold uppercase tracking-widest mt-1">
@@ -389,27 +435,27 @@ export default function PenaltyGame() {
 
                 {/* Problem / Example / Solution cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-red-950/50 border border-red-500/20 rounded-2xl p-5">
-                    <p className="text-red-400 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
+                  <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                    <p className="text-red-600 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
                       ⚠️ El Problema
                     </p>
-                    <p className="text-white/80 text-sm leading-relaxed">
+                    <p className="text-slate-700 text-sm leading-relaxed">
                       {sections[activePage].problem}
                     </p>
                   </div>
-                  <div className="bg-amber-950/50 border border-amber-500/20 rounded-2xl p-5">
-                    <p className="text-amber-400 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                    <p className="text-amber-600 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
                       📌 Ejemplo Real
                     </p>
-                    <p className="text-white/80 text-sm leading-relaxed italic">
+                    <p className="text-slate-700 text-sm leading-relaxed italic">
                       "{sections[activePage].example}"
                     </p>
                   </div>
-                  <div className="bg-emerald-950/50 border border-emerald-500/20 rounded-2xl p-5">
-                    <p className="text-emerald-400 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+                    <p className="text-emerald-600 text-[10px] font-black tracking-widest uppercase mb-3 flex items-center gap-1.5">
                       ✅ La Solución
                     </p>
-                    <p className="text-white/80 text-sm leading-relaxed">
+                    <p className="text-slate-700 text-sm leading-relaxed">
                       {sections[activePage].solution}
                     </p>
                   </div>
@@ -417,12 +463,12 @@ export default function PenaltyGame() {
 
                 {/* Code comparison */}
                 <div>
-                  <h4 className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest mb-3">
+                  <h4 className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
                     Comparación de Código
                   </h4>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="bg-slate-950 rounded-2xl border border-red-500/20 overflow-hidden">
-                      <div className="bg-red-950/40 border-b border-red-500/20 px-4 py-3 flex items-center justify-between">
+                    <div className="bg-slate-950 rounded-2xl border border-red-500/30 overflow-hidden shadow-sm">
+                      <div className="bg-red-950/60 border-b border-red-500/30 px-4 py-3 flex items-center justify-between">
                         <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">❌ Código Inseguro</span>
                         <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
                       </div>
@@ -430,8 +476,8 @@ export default function PenaltyGame() {
                         <code>{sections[activePage].vulnerableCode}</code>
                       </pre>
                     </div>
-                    <div className="bg-slate-950 rounded-2xl border border-emerald-500/20 overflow-hidden">
-                      <div className="bg-emerald-950/40 border-b border-emerald-500/20 px-4 py-3 flex items-center justify-between">
+                    <div className="bg-slate-950 rounded-2xl border border-emerald-500/30 overflow-hidden shadow-sm">
+                      <div className="bg-emerald-950/60 border-b border-emerald-500/30 px-4 py-3 flex items-center justify-between">
                         <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">✅ Código Seguro</span>
                         <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
                       </div>
@@ -447,7 +493,7 @@ export default function PenaltyGame() {
                   {sections[activePage].tips.map((tip, i) => (
                     <span
                       key={i}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#002F6C]/40 border border-[#00A99D]/20 text-[#00A99D] text-xs sm:text-sm rounded-full font-semibold"
+                      className="flex items-center gap-2 px-4 py-2 bg-[#00A99D]/10 border border-[#00A99D]/30 text-[#008B81] text-xs sm:text-sm rounded-full font-semibold"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#00A99D] shrink-0" />
                       {tip}
@@ -459,10 +505,10 @@ export default function PenaltyGame() {
               /* Completion screen */
               <div className="flex flex-col items-center justify-center text-center p-10 min-h-[70vh]">
                 <div className="text-7xl mb-6 animate-bounce">🏆🇨🇴🎉</div>
-                <h3 className="text-3xl sm:text-5xl font-black text-white mb-4 tracking-wide leading-tight">
+                <h3 className="text-3xl sm:text-5xl font-black text-[#002F6C] mb-4 tracking-wide leading-tight">
                   ¡CULTURA DE SEGURIDAD<br />COMPLETADA!
                 </h3>
-                <p className="text-white/50 text-sm sm:text-base mb-10 max-w-lg leading-relaxed">
+                <p className="text-slate-500 text-sm sm:text-base mb-10 max-w-lg leading-relaxed">
                   Has superado a la defensa del Congo y aprendido los 5 pilares para escribir código limpio, seguro y confiable en los proyectos de Alegra SAS.
                 </p>
                 <button
@@ -477,11 +523,11 @@ export default function PenaltyGame() {
 
           {/* Footer navigation */}
           {activePage < 5 && (
-            <div className="flex items-center justify-between px-6 sm:px-10 py-5 border-t border-white/10 shrink-0">
+            <div className="flex items-center justify-between px-6 sm:px-10 py-5 border-t border-slate-200 bg-white shrink-0">
               <button
                 onClick={handlePrevPage}
                 disabled={activePage === 0}
-                className="px-6 py-3 rounded-full border border-white/20 text-white/60 text-xs font-bold hover:bg-white/5 disabled:opacity-25 disabled:pointer-events-none transition-all uppercase tracking-wider"
+                className="px-6 py-3 rounded-full border border-slate-300 text-slate-500 text-xs font-bold hover:bg-slate-50 disabled:opacity-25 disabled:pointer-events-none transition-all uppercase tracking-wider"
               >
                 ⬅ Anterior
               </button>
