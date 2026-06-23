@@ -23,191 +23,118 @@ interface SecuritySection {
 const sections: SecuritySection[] = [
   {
     icon: '🔒',
-    title: 'Datos de Clientes',
-    problem: 'Compartir o exponer información privada de clientes (correos, salarios, cédulas) sin ninguna protección, como si fuera cualquier otro dato.',
-    example: 'Enviar la nómina de empleados por WhatsApp personal o dejar una hoja de salarios abierta en la impresora de la oficina.',
-    solution: 'Trata cada dato de cliente como un documento confidencial con llave. Solo quien lo necesita para su trabajo debe acceder a él.',
+    title: 'Datos de Clientes y Colaboradores',
+    problem: 'Compartir información financiera o personal de clientes y compañeros por canales no autorizados: WhatsApp personal, Gmail personal o capturas de pantalla en chats.',
+    example: 'Enviarle el RUT, balance general o nómina de un cliente a un compañero por WhatsApp porque "es más rápido que buscarlo en Alegra".',
+    solution: 'Usa solo los canales oficiales de Alegra: Google Workspace, la plataforma Alegra y Slack interno. Si la info es sensible, no va por ningún canal informal.',
     tips: [
-      '📋 Solo accede a los datos que necesitas para tu trabajo',
-      '📵 Nunca reenvíes info de clientes por canales no autorizados',
-      '🗑️ Elimina correctamente los archivos con datos sensibles',
+      '📵 Info de clientes solo por canales oficiales de Alegra',
+      '🔐 No compartas pantallas con datos reales en videollamadas abiertas',
+      '🗑️ Elimina correctamente archivos con datos sensibles al terminar',
     ],
     diagram: [
-      { emoji: '📋', label: 'Datos del cliente' },
-      { emoji: '📤', label: 'Envío inseguro' },
-      { emoji: '👁️', label: 'Alguien lo ve' },
+      { emoji: '📊', label: 'Datos del cliente' },
+      { emoji: '💬', label: 'Canal informal' },
+      { emoji: '👁️', label: 'Acceso no autorizado' },
       { emoji: '😱', label: 'Fuga de datos' },
     ],
     codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ MAL — Exponer info real en mensajes:
+    vulnerableCode: `❌ MAL — Canal no autorizado:
 
-WhatsApp personal:
-"El sueldo de Juan Pérez es $4.500.000
-y su cédula es 1.020.304.050"
+WhatsApp personal o Gmail personal:
+"Te mando el balance de la empresa
+ XYZ: ingresos $450M, deudas $120M,
+ NIT: 900.123.456-7"
 
 → Ese mensaje puede ser capturado,
-  reenviado o guardado por terceros.`,
-    secureCode: `✅ BIEN — Usa solo canales oficiales:
+  reenviado o guardado sin control.`,
+    secureCode: `✅ BIEN — Canal oficial de Alegra:
 
-Solo comparte por las plataformas que
-autoriza Alegra (Slack interno, sistemas
-propios, no Gmail/WhatsApp personal).
+Comparte solo a través de:
+• Google Workspace (Drive, Gmail corp.)
+• Plataforma Alegra
+• Slack interno
 
-→ Así el acceso queda controlado
-  y con registro de auditoría.`,
-  },
-  {
-    icon: '🔑',
-    title: 'Contraseñas Seguras',
-    problem: 'Usar contraseñas débiles o iguales en varios sistemas, compartirlas con compañeros o anotarlas en lugares visibles.',
-    example: 'Tu contraseña corporativa es "alegra2024" o la misma que usas en Instagram. Un atacante puede adivinarla en segundos.',
-    solution: 'Cada cuenta necesita una contraseña única y fuerte. Activa el doble factor (2FA) y nunca compartas tu clave con nadie, ni tu jefe.',
-    tips: [
-      '🔐 Usa un gestor de contraseñas (Bitwarden, 1Password)',
-      '📱 Activa el doble factor (2FA) en todas tus cuentas',
-      '💻 Bloquea tu pantalla al alejarte del computador',
-    ],
-    diagram: [
-      { emoji: '🔑', label: 'Clave débil' },
-      { emoji: '🕵️', label: 'Atacante la prueba' },
-      { emoji: '🔓', label: 'Entra a tu cuenta' },
-      { emoji: '💸', label: 'Daño a Alegra' },
-    ],
-    codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ Contraseñas que NUNCA debes usar:
-
-• alegra2024
-• 12345678
-• tu_nombre + año de nacimiento
-• la misma en todos los sistemas
-
-→ Estas claves caen en menos de 1 segundo
-  con herramientas de ataque automatizado.`,
-    secureCode: `✅ Así se ve una contraseña segura:
-
-• Tr0pic@l#Alegr4$
-• Mínimo 12 caracteres
-• Letras + números + símbolos
-• DIFERENTE para cada cuenta
-
-→ Con 2FA activado, aunque la roben
-  no pueden entrar sin tu teléfono.`,
-  },
-  {
-    icon: '🎣',
-    title: 'Phishing: el anzuelo digital',
-    problem: 'Hacer clic en links de correos o mensajes de WhatsApp sin verificar que sean legítimos. Es la causa número 1 de incidentes de seguridad.',
-    example: 'Te llega un email de "soporte@alegra-seguridad.net" con asunto URGENTE diciendo que tu cuenta será bloqueada. Parece real, pero no lo es.',
-    solution: 'Antes de hacer clic en cualquier link, revisa el dominio del remitente y ve directamente al sitio oficial. Ante la duda, no hagas clic.',
-    tips: [
-      '👀 Revisa el dominio real del remitente (no solo el nombre)',
-      '🔗 Nunca ingreses datos en links de mensajes inesperados',
-      '📞 Ante la duda, llama directamente al proveedor',
-    ],
-    diagram: [
-      { emoji: '📧', label: 'Email falso' },
-      { emoji: '🔗', label: 'Link trampa' },
-      { emoji: '🌐', label: 'Sitio falso' },
-      { emoji: '🔐', label: 'Roban tu clave' },
-      { emoji: '💥', label: 'Acceso total' },
-    ],
-    codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ Señales de phishing:
-
-De: soporte@alegra-seguridad.net ← ¡falso!
-Asunto: URGENTE: Tu cuenta será BLOQUEADA
-
-"Haz clic AQUÍ para evitar el bloqueo"
-  ↓ el link lleva a un sitio falso
-
-→ Ingresas tu clave y el atacante la tiene.`,
-    secureCode: `✅ Cómo detectar el engaño:
-
-De: soporte@alegra.com ← dominio real
-• Sin urgencia exagerada ni amenazas
-• Puedes verificar yendo directo a:
-  alegra.com (sin usar el link del email)
-
-→ Ante cualquier duda, consulta a IT
-  antes de hacer clic.`,
+→ Acceso controlado, trazabilidad
+  y cumplimiento de privacidad.`,
   },
   {
     icon: '🤖',
-    title: 'IA y Datos Privados',
-    problem: 'Pegar información confidencial de clientes o de Alegra en herramientas de IA públicas como ChatGPT, que pueden guardar o aprender de lo que les escribes.',
-    example: 'Le pegas a ChatGPT un contrato real de un cliente de Alegra para que lo resuma. Esos datos pueden quedar guardados en servidores externos.',
-    solution: 'Usa la IA para ideas y borradores generales. Nunca pegues nombres reales, datos financieros o información privada. Reemplázalos por ficticios.',
+    title: 'IA y Datos Personales',
+    problem: 'Pegar información real de clientes de Alegra en herramientas de IA pública como ChatGPT o Gemini. Esos datos pueden quedar almacenados en servidores externos y usarse para entrenar modelos.',
+    example: 'Copias la información contable de un cliente en ChatGPT para que te ayude a generar un informe. Esos datos confidenciales salen de Alegra hacia servidores externos.',
+    solution: 'Usa IA para ideas, plantillas y borradores generales. Reemplaza siempre los datos reales por ficticios antes de enviarlos a cualquier herramienta de IA pública.',
     tips: [
-      '🤖 La IA puede guardar y aprender de lo que le escribes',
-      '📝 Reemplaza datos reales por ficticios antes de usar IA',
-      '🏢 Prefiere las herramientas de IA aprobadas por Alegra',
+      '🤖 ChatGPT y Gemini pueden guardar lo que les escribes',
+      '📝 Reemplaza datos reales por ficticios (Ej: "Empresa ABC", "$X millones")',
+      '✅ Prefiere las herramientas de IA aprobadas por Alegra',
     ],
     diagram: [
-      { emoji: '📝', label: 'Datos reales' },
+      { emoji: '📋', label: 'Datos reales' },
       { emoji: '🤖', label: 'IA pública' },
-      { emoji: '📂', label: 'Datos guardados' },
+      { emoji: '🌐', label: 'Servidores externos' },
       { emoji: '⚠️', label: 'Fuga potencial' },
     ],
     codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ MAL — Datos reales en IA pública:
+    vulnerableCode: `❌ MAL — Datos reales a IA pública:
 
-"ChatGPT, resume este contrato:
- Cliente: Empresa XYZ Colombia S.A.S
- NIT: 900.123.456-7
- Valor del contrato: $120.000.000
- Representante: Carlos Gómez..."
+"ChatGPT, analiza esta empresa:
+ Cliente: Panadería La Mejor S.A.S
+ NIT: 800.456.789-1
+ Ventas 2024: $340.000.000
+ Deudas: $85.000.000"
 
-→ Información confidencial de Alegra
-  ahora está en servidores externos.`,
-    secureCode: `✅ BIEN — Usa datos ficticios:
+→ Info confidencial de un cliente
+  de Alegra en servidores de OpenAI.`,
+    secureCode: `✅ BIEN — Datos ficticios, mismo resultado:
 
-"ChatGPT, ¿cómo redacto el resumen
-de un contrato de software por
-$X millones con una empresa cliente?"
+"ChatGPT, para una empresa con ventas
+ de $X y deudas de $Y, ¿qué indicadores
+ financieros debería revisar?"
 
-→ Sin datos reales, misma utilidad.
-  La IA te ayuda igual de bien
-  con información genérica.`,
+→ La IA te ayuda igual.
+  Cero datos reales expuestos.`,
   },
   {
     icon: '🛡️',
-    title: 'Todos Somos Seguridad',
-    problem: 'Creer que la seguridad es solo responsabilidad del equipo de IT y que los errores "no me van a pasar a mí". El 95% de incidentes inician por un error humano.',
-    example: 'Un colaborador abre un archivo adjunto de un email desconocido porque "parece inofensivo". Sin querer, da acceso a los atacantes a toda la red de Alegra.',
-    solution: 'Reportar lo sospechoso, no descargar archivos sin autorización, mantener apps actualizadas. La seguridad es un deporte de equipo.',
+    title: 'Seguridad en el Trabajo Remoto',
+    problem: 'Trabajar remoto en Alegra significa que cada uno es responsable de su entorno de seguridad. Redes públicas, dispositivos compartidos o pantallas visibles son riesgos reales.',
+    example: 'Trabajar desde una cafetería en WiFi público mientras revisas datos de clientes en Alegra, o dejar el computador desbloqueado cuando hay otras personas cerca.',
+    solution: 'Usa VPN o redes de confianza, bloquea la pantalla al alejarte, y trabaja en espacios donde nadie pueda ver tu pantalla con info de clientes.',
     tips: [
-      '🚨 Reporta emails sospechosos — no tienes que actuar solo',
-      '🔄 Actualiza tus aplicaciones y sistemas regularmente',
-      '🤝 La seguridad empieza contigo, no solo con IT',
+      '🔒 Bloquea tu pantalla siempre que te alejes (Win+L / Cmd+Ctrl+Q)',
+      '📡 Evita WiFi público para acceder a datos de clientes',
+      '🚨 Reporta cualquier incidente de seguridad de inmediato',
     ],
     diagram: [
-      { emoji: '⚠️', label: 'Amenaza llega' },
-      { emoji: '👤', label: 'Error humano' },
-      { emoji: '💥', label: 'Incidente' },
+      { emoji: '💻', label: 'Trabajo remoto' },
+      { emoji: '📡', label: 'Red insegura' },
+      { emoji: '👤', label: 'Acceso no deseado' },
       { emoji: '📢', label: 'Reportar' },
       { emoji: '🛡️', label: 'Protección' },
     ],
     codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ Comportamientos de riesgo:
+    vulnerableCode: `❌ Riesgos del trabajo remoto:
 
-• Ignorar alertas de seguridad del PC
-• Abrir adjuntos sin verificar remitente
-• Conectar USB de origen desconocido
-• "Esto no me va a pasar a mí"
-• No reportar por miedo a equivocarse
+• WiFi de cafetería o aeropuerto
+• Pantalla visible a personas cercanas
+• Computador desbloqueado sin supervisión
+• Usar cuenta personal de Gmail para
+  enviar archivos de trabajo
+• "Nadie me está mirando"
 
-→ El silencio ante algo sospechoso
-  le da ventaja al atacante.`,
-    secureCode: `✅ Buenos hábitos de seguridad:
+→ Un solo descuido puede exponer
+  datos de cientos de clientes.`,
+    secureCode: `✅ Buenos hábitos en remoto:
 
-• Reportar sin miedo (es anónimo si quieres)
-• Dudar ANTES de hacer clic
-• Preguntar a IT si algo parece raro
-• Actualizar el software regularmente
-• Recordar: somos equipo 🤝
+• Bloquea pantalla al levantarte
+  (Win+L o Cmd+Ctrl+Q)
+• Usa red confiable o VPN
+• Comparte solo por Google Workspace
+• Reporta incidentes sin miedo 🤝
 
-→ Un reporte a tiempo puede proteger
-  a todo el equipo de Alegra.`,
+→ Trabajamos en equipo aunque
+  estemos en distintos países.`,
   },
 ]
 
@@ -245,6 +172,7 @@ export default function PenaltyGame() {
   const [celebrating, setCelebrating] = useState(false)
   const [slideDir, setSlideDir] = useState<'forward' | 'back'>('forward')
   const [activePage, setActivePage] = useState(0)
+  const [kickIsGoal, setKickIsGoal] = useState(false)
 
   const boardRef = useRef<HTMLDivElement>(null)
 
@@ -260,6 +188,7 @@ export default function PenaltyGame() {
     const gkChoice = (['left', 'center', 'right'] as const)[Math.floor(Math.random() * 3)]
     setGkDiveDir(gkChoice)
     setGkJumpDir(verticalAim > 62 ? 'up' : verticalAim < 38 ? 'down' : 'neutral')
+    setKickIsGoal(KICK_OUTCOMES[currentKick] ?? false)
 
     setTimeout(() => {
       setShowKickEffect(false)
@@ -314,26 +243,36 @@ export default function PenaltyGame() {
     setPower(50)
     setCelebrating(false)
     setActivePage(0)
+    setKickIsGoal(false)
     setTimeout(() => setShowIntroBall(false), 1500)
   }, [])
 
   // Ball arc: H moves linearly, V eases-out (rises fast then decelerates) → parabolic arc
   const getBallTargetStyles = () => {
     if (phase === 'kicking' || phase === 'result') {
-      const left = 25 + (horizontalAim / 100) * 50
-      const bottom = 100 - (5 + ((100 - verticalAim) / 100) * 35)
+      let left: number
+      let bottom: number
+      if (kickIsGoal) {
+        // Map to inside the goal area
+        left = 38 + (horizontalAim / 100) * 24
+        bottom = 100 - (19 + ((100 - verticalAim) / 100) * 18)
+      } else {
+        // Original wider mapping
+        left = 25 + (horizontalAim / 100) * 50
+        bottom = 100 - (5 + ((100 - verticalAim) / 100) * 35)
+      }
       return {
         left: `${left}%`,
         bottom: `${bottom}%`,
         top: 'auto',
-        transform: 'translateX(-50%) scale(0.38)',
+        transform: 'translateX(-50%) scale(0.5)',
         transition: 'left 0.78s linear, bottom 0.78s cubic-bezier(0.05, 0, 0.2, 1), transform 0.78s ease',
         opacity: (shotResult === 'saved' || shotResult === 'missed') && phase === 'result' ? 0.35 : 1,
       }
     }
     return {
       left: '50%',
-      bottom: '22%',
+      bottom: '30%',
       top: 'auto',
       transform: 'translateX(-50%) scale(1.15)',
       transition: 'none',
@@ -373,14 +312,14 @@ export default function PenaltyGame() {
 
   const handleNextPage = () => {
     setSlideDir('forward')
-    if (activePage < 4) {
+    if (activePage < 2) {
       setActivePage((prev) => {
         const next = prev + 1
         setStars((s) => Math.max(s, next + 1))
         return next
       })
     } else {
-      setActivePage(5)
+      setActivePage(3)
     }
   }
 
@@ -470,9 +409,9 @@ export default function PenaltyGame() {
 
           <div className="flex items-center justify-between px-6 sm:px-10 py-4 border-b border-slate-200 shrink-0">
             <span className="text-[#002F6C]/60 text-[10px] sm:text-xs font-black uppercase tracking-widest">
-              Módulos de Seguridad
+              Seguridad en Alegra
             </span>
-            {activePage < 5 && (
+            {activePage < 3 && (
               <div className="flex items-center gap-2">
                 {sections.map((_, i) => (
                   <button
@@ -494,12 +433,12 @@ export default function PenaltyGame() {
               </div>
             )}
             <span className="text-slate-400 text-[10px] sm:text-xs font-bold">
-              {activePage < 5 ? `${activePage + 1} / 5` : '✓ Completado'}
+              {activePage < 3 ? `${activePage + 1} / 3` : '✓ Completado'}
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto bg-[#F8FAFF]">
-            {activePage < 5 ? (
+            {activePage < 3 ? (
               <div
                 key={activePage}
                 className={`p-6 sm:p-10 lg:p-14 flex flex-col gap-6 ${slideDir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
@@ -512,7 +451,7 @@ export default function PenaltyGame() {
                       {sections[activePage].title}
                     </h2>
                     <p className="text-[#00A99D] text-xs sm:text-sm font-bold uppercase tracking-widest mt-1">
-                      Módulo {activePage + 1} de 5
+                      Módulo {activePage + 1} de 3
                     </p>
                   </div>
                 </div>
@@ -611,7 +550,7 @@ export default function PenaltyGame() {
                   ¡MÓDULOS<br />COMPLETADOS!
                 </h3>
                 <p className="text-slate-500 text-sm sm:text-base mb-10 max-w-lg leading-relaxed">
-                  Completaste los 5 módulos de seguridad de Alegra. Ahora eres parte activa de la defensa del equipo. ¡La seguridad es responsabilidad de todos! 🛡️
+                  Completaste los 3 módulos de seguridad de Alegra. Ahora eres parte activa de la defensa del equipo. ¡La seguridad es responsabilidad de todos! 🛡️
                 </p>
                 <button
                   onClick={handlePlayAgain}
@@ -623,7 +562,7 @@ export default function PenaltyGame() {
             )}
           </div>
 
-          {activePage < 5 && (
+          {activePage < 3 && (
             <div className="flex items-center justify-between px-6 sm:px-10 py-5 border-t border-slate-200 bg-white shrink-0">
               <button
                 onClick={handlePrevPage}
@@ -636,7 +575,7 @@ export default function PenaltyGame() {
                 onClick={handleNextPage}
                 className="px-8 py-3 rounded-full bg-[#00A99D] hover:bg-[#008B81] text-white text-xs font-black tracking-wider uppercase transition-all active:scale-95 shadow-lg"
               >
-                {activePage === 4 ? 'Finalizar lección 🏆' : 'Siguiente ➡'}
+                {activePage === 2 ? 'Finalizar lección 🏆' : 'Siguiente ➡'}
               </button>
             </div>
           )}
@@ -780,7 +719,7 @@ export default function PenaltyGame() {
               {/* Kicker */}
               {(phase === 'aiming' || phase === 'kicking' || phase === 'result') && (
                 <div
-                  className="absolute bottom-[20%] left-1/2 z-10"
+                  className="absolute bottom-[26%] left-1/2 z-10"
                   style={phase === 'kicking'
                     ? { transform: 'translateX(-50%) translateY(-18px) rotate(-14deg) scale(0.88)', opacity: 0.82, transition: 'all 0.28s cubic-bezier(0.22, 1, 0.36, 1)', transformOrigin: 'bottom center' }
                     : { transform: 'translateX(-50%)', transition: 'all 0.2s ease' }}
@@ -794,7 +733,7 @@ export default function PenaltyGame() {
                     </div>
                     {/* Jersey */}
                     <div className="w-7 h-5 bg-[#FCD116] rounded-sm -mt-0.5 flex items-center justify-center relative shadow-sm">
-                      <span className="text-[#003893] text-[6px] font-black">9</span>
+                      <span className="text-[#003893] text-[6px] font-black">10</span>
                       <div className="absolute top-0.5 left-0.5 w-1.5 h-0.5 bg-[#CE1126] rounded-sm" />
                       <div className="absolute top-0.5 right-0.5 w-1.5 h-0.5 bg-[#CE1126] rounded-sm" />
                     </div>
@@ -830,7 +769,7 @@ export default function PenaltyGame() {
 
               {/* Intro ball */}
               {phase === 'intro' && showIntroBall && (
-                <div className="absolute bottom-[22%] left-1/2 -translate-x-1/2 z-20 animate-ball-drop">
+                <div className="absolute bottom-[30%] left-1/2 -translate-x-1/2 z-20 animate-ball-drop">
                   <div className="text-3xl drop-shadow-lg">⚽</div>
                 </div>
               )}
@@ -844,7 +783,9 @@ export default function PenaltyGame() {
                     height: (phase === 'kicking' || phase === 'result') ? '4px' : '8px',
                     bottom: '21%',
                     left: (phase === 'kicking' || phase === 'result')
-                      ? `${25 + (horizontalAim / 100) * 50}%`
+                      ? kickIsGoal
+                        ? `${38 + (horizontalAim / 100) * 24}%`
+                        : `${25 + (horizontalAim / 100) * 50}%`
                       : '50%',
                     transform: 'translateX(-50%)',
                     transition: 'left 0.78s linear, width 0.78s ease, height 0.78s ease',
@@ -866,7 +807,7 @@ export default function PenaltyGame() {
 
               {/* Kick effect */}
               {showKickEffect && (
-                <div className="absolute bottom-[22%] left-1/2 -translate-x-1/2 z-30 text-2xl animate-ping select-none">💥</div>
+                <div className="absolute bottom-[30%] left-1/2 -translate-x-1/2 z-30 text-2xl animate-ping select-none">💥</div>
               )}
 
               {/* Result overlay */}
