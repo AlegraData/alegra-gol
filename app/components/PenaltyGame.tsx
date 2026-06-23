@@ -37,17 +37,6 @@ interface SecuritySection {
 
 const sections: SecuritySection[] = [
   {
-    type: 'intro',
-    icon: '🔐',
-    title: 'Hablemos de tratamiento de datos',
-    introText: 'En Alegra manejamos información sensible de clientes, colaboradores y proveedores. Como equipo 100% remoto, cada uno de nosotros es la primera línea de defensa.',
-    introAgenda: [
-      { emoji: '🧑', text: '¿Qué son datos personales?' },
-      { emoji: '🤖', text: 'IA y datos personales' },
-      { emoji: '🎯', text: 'Evaluación final' },
-    ],
-  },
-  {
     type: 'content',
     icon: '🧑',
     title: '¿Qué son datos personales?',
