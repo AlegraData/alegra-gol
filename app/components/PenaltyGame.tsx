@@ -2,139 +2,159 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react'
 
-type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'meme' | 'info'
+type GamePhase = 'intro' | 'aiming' | 'kicking' | 'result' | 'info'
 
 // kick 0 = miss, kick 1 = goal, kick 2 = goal (always)
 const KICK_OUTCOMES: boolean[] = [false, true, true]
 
+interface QuizQuestion {
+  question: string
+  options: { emoji: string; label: string }[]
+  correctIndex: number
+  explanation: string
+}
+
 interface SecuritySection {
+  type: 'intro' | 'content' | 'quiz'
   icon: string
   title: string
-  problem: string
-  example: string
-  solution: string
-  tips: string[]
-  diagram: { emoji: string; label: string }[]
-  vulnerableCode: string
-  secureCode: string
-  codeLanguage: string
+  // content fields
+  problem?: string
+  example?: string
+  solution?: string
+  tips?: string[]
+  diagram?: { emoji: string; label: string }[]
+  vulnerableCode?: string
+  secureCode?: string
+  codeLanguage?: string
+  imageUrl?: string
+  // intro fields
+  introText?: string
+  introAgenda?: { emoji: string; text: string }[]
+  // quiz fields
+  quizQuestions?: QuizQuestion[]
 }
 
 const sections: SecuritySection[] = [
   {
-    icon: '🔒',
-    title: 'Datos de Clientes y Colaboradores',
-    problem: 'Compartir información financiera o personal de clientes y compañeros por canales no autorizados: WhatsApp personal, Gmail personal o capturas de pantalla en chats.',
-    example: 'Enviarle el RUT, balance general o nómina de un cliente a un compañero por WhatsApp porque "es más rápido que buscarlo en Alegra".',
-    solution: 'Usa solo los canales oficiales de Alegra: Google Workspace, la plataforma Alegra y Slack interno. Si la info es sensible, no va por ningún canal informal.',
-    tips: [
-      '📵 Info de clientes solo por canales oficiales de Alegra',
-      '🔐 No compartas pantallas con datos reales en videollamadas abiertas',
-      '🗑️ Elimina correctamente archivos con datos sensibles al terminar',
+    type: 'intro',
+    icon: '🔐',
+    title: 'Hablemos de tratamiento de datos',
+    introText: 'En Alegra manejamos información sensible de clientes, colaboradores y proveedores. Como equipo 100% remoto, cada uno de nosotros es la primera línea de defensa.',
+    introAgenda: [
+      { emoji: '🧑', text: '¿Qué son datos personales?' },
+      { emoji: '🤖', text: 'IA y datos personales' },
+      { emoji: '🎯', text: 'Evaluación final' },
     ],
-    diagram: [
-      { emoji: '📊', label: 'Datos del cliente' },
-      { emoji: '💬', label: 'Canal informal' },
-      { emoji: '👁️', label: 'Acceso no autorizado' },
-      { emoji: '😱', label: 'Fuga de datos' },
-    ],
-    codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ MAL — Canal no autorizado:
-
-WhatsApp personal o Gmail personal:
-"Te mando el balance de la empresa
- XYZ: ingresos $450M, deudas $120M,
- NIT: 900.123.456-7"
-
-→ Ese mensaje puede ser capturado,
-  reenviado o guardado sin control.`,
-    secureCode: `✅ BIEN — Canal oficial de Alegra:
-
-Comparte solo a través de:
-• Google Workspace (Drive, Gmail corp.)
-• Plataforma Alegra
-• Slack interno
-
-→ Acceso controlado, trazabilidad
-  y cumplimiento de privacidad.`,
   },
   {
+    type: 'content',
+    icon: '🧑',
+    title: '¿Qué son datos personales?',
+    problem: 'No son solo los datos de clientes. Cualquier dato que identifique a una persona —cliente, colaborador o proveedor— es dato personal y requiere protección.',
+    example: 'El NIT de una empresa NO es dato personal. Pero el correo, cédula, salario o teléfono de una persona SÍ lo son, sin importar si es cliente o compañero.',
+    solution: 'Antes de compartir: ¿identifica a una persona? Si sí → solo por canales oficiales de Alegra.',
+    tips: [
+      '✅ Dato personal: correo, cédula, teléfono, salario',
+      '❌ No dato personal: NIT, nombre de empresa',
+      '📵 Nunca por WhatsApp personal o Gmail personal',
+    ],
+    diagram: [
+      { emoji: '🧑', label: 'Persona' },
+      { emoji: '📋', label: 'Sus datos' },
+      { emoji: '🔐', label: 'Proteger' },
+      { emoji: '✅', label: 'Canal oficial' },
+    ],
+    codeLanguage: 'ejemplo',
+    vulnerableCode: `❌ Canal no autorizado:
+
+Slack/WhatsApp personal:
+"Cédula del rep. legal:
+ 1.020.304.050
+ correo: carlos@gmail.com"
+
+→ Sin control, sin trazabilidad`,
+    secureCode: `✅ Canal oficial de Alegra:
+
+Plataforma Alegra → CRM
+→ Ficha del cliente
+→ Acceso controlado solo
+  a quien lo necesita`,
+  },
+  {
+    type: 'content',
     icon: '🤖',
     title: 'IA y Datos Personales',
-    problem: 'Pegar información real de clientes de Alegra en herramientas de IA pública como ChatGPT o Gemini. Esos datos pueden quedar almacenados en servidores externos y usarse para entrenar modelos.',
-    example: 'Copias la información contable de un cliente en ChatGPT para que te ayude a generar un informe. Esos datos confidenciales salen de Alegra hacia servidores externos.',
-    solution: 'Usa IA para ideas, plantillas y borradores generales. Reemplaza siempre los datos reales por ficticios antes de enviarlos a cualquier herramienta de IA pública.',
+    imageUrl: '/dot-security-2.jpg',
+    problem: 'ChatGPT, Gemini y similares pueden guardar lo que les escribes. Si pegas datos personales reales, esa información sale de Alegra hacia servidores externos.',
+    example: 'Copiar nombre, cédula e ingresos de un cliente en ChatGPT para generar un informe — datos personales reales en servidores de OpenAI.',
+    solution: 'Usa IA con datos ficticios. El resultado es igual de útil. Reemplaza "Carlos Pérez, $8.5M" por "Cliente X, $N millones".',
     tips: [
-      '🤖 ChatGPT y Gemini pueden guardar lo que les escribes',
-      '📝 Reemplaza datos reales por ficticios (Ej: "Empresa ABC", "$X millones")',
-      '✅ Prefiere las herramientas de IA aprobadas por Alegra',
+      '🤖 IA pública puede guardar lo que escribes',
+      '📝 Siempre usa datos ficticios con IA',
+      '✅ Prefiere las IA aprobadas por Alegra',
     ],
     diagram: [
       { emoji: '📋', label: 'Datos reales' },
       { emoji: '🤖', label: 'IA pública' },
-      { emoji: '🌐', label: 'Servidores externos' },
-      { emoji: '⚠️', label: 'Fuga potencial' },
+      { emoji: '🌐', label: 'Servidores ext.' },
+      { emoji: '⚠️', label: 'Fuga' },
     ],
     codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ MAL — Datos reales a IA pública:
+    vulnerableCode: `❌ Datos reales en IA pública:
 
-"ChatGPT, analiza esta empresa:
- Cliente: Panadería La Mejor S.A.S
- NIT: 800.456.789-1
- Ventas 2024: $340.000.000
- Deudas: $85.000.000"
+"ChatGPT, cliente Carlos Pérez,
+ cédula 1.020.304.050,
+ ingresos: $8.500.000"
 
-→ Info confidencial de un cliente
-  de Alegra en servidores de OpenAI.`,
-    secureCode: `✅ BIEN — Datos ficticios, mismo resultado:
+→ Datos personales expuestos`,
+    secureCode: `✅ Datos ficticios, mismo resultado:
 
-"ChatGPT, para una empresa con ventas
- de $X y deudas de $Y, ¿qué indicadores
- financieros debería revisar?"
+"ChatGPT, para un cliente con
+ ingresos de $N mensuales,
+ ¿qué indicadores revisar?"
 
-→ La IA te ayuda igual.
-  Cero datos reales expuestos.`,
+→ IA útil. Sin datos expuestos`,
   },
   {
-    icon: '🛡️',
-    title: 'Seguridad en el Trabajo Remoto',
-    problem: 'Trabajar remoto en Alegra significa que cada uno es responsable de su entorno de seguridad. Redes públicas, dispositivos compartidos o pantallas visibles son riesgos reales.',
-    example: 'Trabajar desde una cafetería en WiFi público mientras revisas datos de clientes en Alegra, o dejar el computador desbloqueado cuando hay otras personas cerca.',
-    solution: 'Usa VPN o redes de confianza, bloquea la pantalla al alejarte, y trabaja en espacios donde nadie pueda ver tu pantalla con info de clientes.',
-    tips: [
-      '🔒 Bloquea tu pantalla siempre que te alejes (Win+L / Cmd+Ctrl+Q)',
-      '📡 Evita WiFi público para acceder a datos de clientes',
-      '🚨 Reporta cualquier incidente de seguridad de inmediato',
+    type: 'quiz',
+    icon: '🎯',
+    title: 'Evaluación',
+    quizQuestions: [
+      {
+        question: '¿Cuál de estos NO es un dato personal?',
+        options: [
+          { emoji: '🪪', label: 'Número de cédula de un colaborador' },
+          { emoji: '💰', label: 'Salario mensual de un empleado' },
+          { emoji: '🏢', label: 'NIT de una empresa' },
+          { emoji: '📧', label: 'Correo personal del representante legal de un cliente' },
+        ],
+        correctIndex: 2,
+        explanation: 'El NIT identifica a una empresa (persona jurídica), no a una persona natural. Cédula, salario y correo personal SÍ son datos personales protegidos.',
+      },
+      {
+        question: 'Un compañero te pide por Slack los datos de contacto de un cliente. ¿Qué haces?',
+        options: [
+          { emoji: '💬', label: 'Se los envío por Slack, es de confianza' },
+          { emoji: '📋', label: 'Le digo que los consulte en la plataforma oficial de Alegra' },
+          { emoji: '📧', label: 'Se los mando por correo personal para mayor seguridad' },
+          { emoji: '🤷', label: 'No sé si son sensibles, los comparto igual' },
+        ],
+        correctIndex: 1,
+        explanation: 'Los datos de clientes están en la plataforma oficial de Alegra con acceso controlado. Nunca compartirlos por chats, aunque sea un compañero de confianza.',
+      },
+      {
+        question: 'Vas a usar ChatGPT para analizar la situación de un cliente. ¿Cómo lo haces?',
+        options: [
+          { emoji: '📋', label: 'Pego los datos reales del cliente, es más fácil' },
+          { emoji: '🔐', label: 'Uso datos ficticios con los mismos montos de ejemplo' },
+          { emoji: '📞', label: 'Le pido permiso al cliente antes de usar IA' },
+          { emoji: '🚫', label: 'No uso IA para nada relacionado con clientes' },
+        ],
+        correctIndex: 1,
+        explanation: 'Con datos ficticios obtienes el mismo resultado sin exponer información real. Las opciones C y D no son necesarias si usas datos ficticios correctamente.',
+      },
     ],
-    diagram: [
-      { emoji: '💻', label: 'Trabajo remoto' },
-      { emoji: '📡', label: 'Red insegura' },
-      { emoji: '👤', label: 'Acceso no deseado' },
-      { emoji: '📢', label: 'Reportar' },
-      { emoji: '🛡️', label: 'Protección' },
-    ],
-    codeLanguage: 'ejemplo',
-    vulnerableCode: `❌ Riesgos del trabajo remoto:
-
-• WiFi de cafetería o aeropuerto
-• Pantalla visible a personas cercanas
-• Computador desbloqueado sin supervisión
-• Usar cuenta personal de Gmail para
-  enviar archivos de trabajo
-• "Nadie me está mirando"
-
-→ Un solo descuido puede exponer
-  datos de cientos de clientes.`,
-    secureCode: `✅ Buenos hábitos en remoto:
-
-• Bloquea pantalla al levantarte
-  (Win+L o Cmd+Ctrl+Q)
-• Usa red confiable o VPN
-• Comparte solo por Google Workspace
-• Reporta incidentes sin miedo 🤝
-
-→ Trabajamos en equipo aunque
-  estemos en distintos países.`,
   },
 ]
 
@@ -172,6 +192,7 @@ export default function PenaltyGame() {
   const [celebrating, setCelebrating] = useState(false)
   const [slideDir, setSlideDir] = useState<'forward' | 'back'>('forward')
   const [activePage, setActivePage] = useState(0)
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({})
   const [kickIsGoal, setKickIsGoal] = useState(false)
 
   const boardRef = useRef<HTMLDivElement>(null)
@@ -209,8 +230,8 @@ export default function PenaltyGame() {
           if (newKicksPlayed < KICK_OUTCOMES.length) {
             setPhase('aiming')
           } else {
-            // Last kick — go to meme, then auto-advance to module
-            setPhase('meme')
+            // Last kick — go directly to info module
+            setPhase('info')
           }
         }, 2200)
       } else {
@@ -310,22 +331,30 @@ export default function PenaltyGame() {
     container.addEventListener('pointerup', handlePointerUp)
   }
 
+  const lastContentIndex = sections.length - 1
+  const currentSection = sections[activePage]
+  const isQuizSlide = currentSection?.type === 'quiz'
+  const quizQuestions = currentSection?.quizQuestions ?? []
+  const quizAllAnswered = isQuizSlide && Object.keys(quizAnswers).length >= quizQuestions.length
+
   const handleNextPage = () => {
+    if (isQuizSlide && !quizAllAnswered) return
     setSlideDir('forward')
-    if (activePage < 2) {
+    if (activePage < lastContentIndex) {
       setActivePage((prev) => {
         const next = prev + 1
         setStars((s) => Math.max(s, next + 1))
         return next
       })
     } else {
-      setActivePage(3)
+      setActivePage(sections.length)
     }
   }
 
   const handlePrevPage = () => {
     if (activePage > 0) {
       setSlideDir('back')
+      setQuizAnswers({})
       setActivePage((prev) => prev - 1)
     }
   }
@@ -335,73 +364,16 @@ export default function PenaltyGame() {
       const timer = setTimeout(() => setShowIntroBall(false), 1500)
       return () => clearTimeout(timer)
     }
-    if (phase === 'meme') {
-      const timer = setTimeout(() => {
-        setPhase('info')
-        setActivePage(0)
-        setSlideDir('forward')
-        setStars(1)
-      }, 20000)
-      return () => clearTimeout(timer)
+    if (phase === 'info') {
+      setActivePage(0)
+      setSlideDir('forward')
+      setStars(1)
+      setQuizAnswers({})
     }
   }, [phase])
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4 sm:p-6 bg-[#E2E8F0] font-sans">
-
-      {/* MEME TRANSITION */}
-      {phase === 'meme' && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white animate-presentation-enter overflow-y-auto p-6">
-          <div className="max-w-sm w-full flex flex-col items-center gap-5 py-8">
-            <div className="text-center">
-              <p className="text-3xl sm:text-4xl font-black text-[#002F6C] leading-tight">
-                ¡Hasta aquí llegaste! 🎣
-              </p>
-              <p className="text-sm text-slate-400 mt-1 font-medium">
-                Dos goles y en el último… te atrapamos.
-              </p>
-            </div>
-
-            <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-[#002F6C]/10 w-48">
-              <img
-                src="/dot-security.jpg"
-                alt="Meme perro ciberseguridad"
-                className="w-full h-auto"
-              />
-            </div>
-
-            <div className="text-center bg-[#002F6C]/5 border border-[#002F6C]/10 rounded-2xl p-5">
-              <p className="text-base font-semibold text-slate-700 leading-relaxed">
-                Igual que en la seguridad: puedes esquivar dos, pero la tercera te atrapa. 🔐<br />
-                <span className="text-[#00A99D] font-black">Aprende a no dejar que te anoten goles.</span>
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-              <button
-                onClick={() => {
-                  setPhase('info')
-                  setActivePage(0)
-                  setSlideDir('forward')
-                  setStars(1)
-                }}
-                className="bg-[#00A99D] hover:bg-[#008B81] text-white font-black px-10 py-4 rounded-full text-sm tracking-widest uppercase transition-all shadow-xl active:scale-95 w-full"
-              >
-                🔐 Ir al módulo de seguridad
-              </button>
-              <div className="text-[#00A99D] text-[11px] font-semibold opacity-70">
-                o espera, carga automáticamente…
-              </div>
-              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#00A99D] rounded-full"
-                  style={{ animation: 'grow20s 20s linear forwards' }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* FULLSCREEN INFO OVERLAY */}
       {phase === 'info' && (
@@ -411,13 +383,14 @@ export default function PenaltyGame() {
             <span className="text-[#002F6C]/60 text-[10px] sm:text-xs font-black uppercase tracking-widest">
               Seguridad en Alegra
             </span>
-            {activePage < 3 && (
+            {activePage < sections.length && (
               <div className="flex items-center gap-2">
                 {sections.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => {
                       setSlideDir(i > activePage ? 'forward' : 'back')
+                      setQuizAnswers({})
                       setActivePage(i)
                       setStars((s) => Math.max(s, i + 1))
                     }}
@@ -433,124 +406,212 @@ export default function PenaltyGame() {
               </div>
             )}
             <span className="text-slate-400 text-[10px] sm:text-xs font-bold">
-              {activePage < 3 ? `${activePage + 1} / 3` : '✓ Completado'}
+              {activePage < sections.length ? `${activePage + 1} / ${sections.length}` : '✓ Completado'}
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto bg-[#F8FAFF]">
-            {activePage < 3 ? (
+            {activePage < sections.length ? (
               <div
                 key={activePage}
                 className={`p-6 sm:p-10 lg:p-14 flex flex-col gap-6 ${slideDir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
               >
-                {/* Title */}
-                <div className="flex items-center gap-4">
-                  <span className="text-5xl sm:text-6xl select-none">{sections[activePage].icon}</span>
-                  <div>
-                    <h2 className="text-2xl sm:text-4xl font-black text-[#002F6C] tracking-wide leading-tight">
-                      {sections[activePage].title}
-                    </h2>
-                    <p className="text-[#00A99D] text-xs sm:text-sm font-bold uppercase tracking-widest mt-1">
-                      Módulo {activePage + 1} de 3
-                    </p>
-                  </div>
-                </div>
-
-                {/* Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
-                    <p className="text-red-600 text-[10px] font-black tracking-widest uppercase mb-3">
-                      ⚠️ El Problema
-                    </p>
-                    <p className="text-slate-700 text-sm leading-relaxed">
-                      {sections[activePage].problem}
-                    </p>
-                  </div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                    <p className="text-amber-600 text-[10px] font-black tracking-widest uppercase mb-3">
-                      📌 Ejemplo Real
-                    </p>
-                    <p className="text-slate-700 text-sm leading-relaxed italic">
-                      "{sections[activePage].example}"
-                    </p>
-                  </div>
-                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
-                    <p className="text-emerald-600 text-[10px] font-black tracking-widest uppercase mb-3">
-                      ✅ La Solución
-                    </p>
-                    <p className="text-slate-700 text-sm leading-relaxed">
-                      {sections[activePage].solution}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Emoji diagram */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-5">
-                  <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase mb-4">
-                    ¿Cómo ocurre?
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {sections[activePage].diagram.map((node, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="flex flex-col items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3 min-w-[60px]">
-                          <span className="text-2xl">{node.emoji}</span>
-                          <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{node.label}</span>
+                {/* ── INTRO SLIDE ── */}
+                {sections[activePage].type === 'intro' && (
+                  <div className="flex flex-col items-center text-center gap-8 py-6">
+                    <span className="text-8xl sm:text-9xl select-none">{sections[activePage].icon}</span>
+                    <div>
+                      <h2 className="text-3xl sm:text-5xl font-black text-[#002F6C] tracking-wide leading-tight mb-4">
+                        {sections[activePage].title}
+                      </h2>
+                      <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        {sections[activePage].introText}
+                      </p>
+                    </div>
+                    <div className="w-full max-w-md flex flex-col gap-3">
+                      <p className="text-[#00A99D] text-xs font-black uppercase tracking-widest mb-1">En esta sesión veremos</p>
+                      {sections[activePage].introAgenda?.map((item, i) => (
+                        <div key={i} className="flex items-center gap-4 bg-white border border-slate-200 rounded-2xl px-6 py-4 shadow-sm">
+                          <span className="text-3xl">{item.emoji}</span>
+                          <span className="text-slate-700 font-semibold text-sm sm:text-base">{item.text}</span>
                         </div>
-                        {i < sections[activePage].diagram.length - 1 && (
-                          <span className="text-slate-300 text-xl font-bold">→</span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Code comparison */}
-                <div>
-                  <h4 className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-3">
-                    Comparación práctica
-                  </h4>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="bg-slate-950 rounded-2xl border border-red-500/30 overflow-hidden shadow-sm">
-                      <div className="bg-red-950/60 border-b border-red-500/30 px-4 py-3 flex items-center justify-between">
-                        <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">❌ Inseguro</span>
-                        <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
-                      </div>
-                      <pre className="p-5 text-xs sm:text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed whitespace-pre-wrap">
-                        <code>{sections[activePage].vulnerableCode}</code>
-                      </pre>
-                    </div>
-                    <div className="bg-slate-950 rounded-2xl border border-emerald-500/30 overflow-hidden shadow-sm">
-                      <div className="bg-emerald-950/60 border-b border-emerald-500/30 px-4 py-3 flex items-center justify-between">
-                        <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">✅ Seguro</span>
-                        <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
-                      </div>
-                      <pre className="p-5 text-xs sm:text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed whitespace-pre-wrap">
-                        <code>{sections[activePage].secureCode}</code>
-                      </pre>
+                      ))}
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* Tips */}
-                <div className="flex flex-wrap gap-2 pb-2">
-                  {sections[activePage].tips.map((tip, i) => (
-                    <span
-                      key={i}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#00A99D]/10 border border-[#00A99D]/30 text-[#008B81] text-xs sm:text-sm rounded-full font-semibold"
-                    >
-                      {tip}
-                    </span>
-                  ))}
-                </div>
+                {/* ── CONTENT SLIDE ── */}
+                {sections[activePage].type === 'content' && (
+                  <>
+                    {/* Title */}
+                    <div className="flex items-center gap-4">
+                      <span className="text-5xl sm:text-6xl select-none">{sections[activePage].icon}</span>
+                      <div>
+                        <h2 className="text-2xl sm:text-4xl font-black text-[#002F6C] tracking-wide leading-tight">
+                          {sections[activePage].title}
+                        </h2>
+                        <p className="text-[#00A99D] text-xs sm:text-sm font-bold uppercase tracking-widest mt-1">
+                          Seguridad de datos · Alegra
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                        <p className="text-red-600 text-[10px] font-black tracking-widest uppercase mb-3">⚠️ El Problema</p>
+                        <p className="text-slate-700 text-sm leading-relaxed">{sections[activePage].problem}</p>
+                      </div>
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                        <p className="text-amber-600 text-[10px] font-black tracking-widest uppercase mb-3">📌 Ejemplo Real</p>
+                        <p className="text-slate-700 text-sm leading-relaxed italic">"{sections[activePage].example}"</p>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
+                        <p className="text-emerald-600 text-[10px] font-black tracking-widest uppercase mb-3">✅ La Solución</p>
+                        <p className="text-slate-700 text-sm leading-relaxed">{sections[activePage].solution}</p>
+                      </div>
+                    </div>
+
+                    {/* Emoji diagram */}
+                    <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                      <p className="text-slate-400 text-[10px] font-black tracking-widest uppercase mb-4">¿Cómo funciona?</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {sections[activePage].diagram?.map((node, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="flex flex-col items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl p-3 min-w-[60px]">
+                              <span className="text-2xl">{node.emoji}</span>
+                              <span className="text-[10px] font-bold text-slate-600 text-center leading-tight">{node.label}</span>
+                            </div>
+                            {i < (sections[activePage].diagram?.length ?? 0) - 1 && (
+                              <span className="text-slate-300 text-xl font-bold">→</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Code comparison */}
+                    <div>
+                      <h4 className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Comparación práctica</h4>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div className="bg-slate-950 rounded-2xl border border-red-500/30 overflow-hidden shadow-sm">
+                          <div className="bg-red-950/60 border-b border-red-500/30 px-4 py-3 flex items-center justify-between">
+                            <span className="text-red-400 text-[10px] font-black uppercase tracking-widest">❌ Inseguro</span>
+                            <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
+                          </div>
+                          <pre className="p-5 text-xs sm:text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed whitespace-pre-wrap">
+                            <code>{sections[activePage].vulnerableCode}</code>
+                          </pre>
+                        </div>
+                        <div className="bg-slate-950 rounded-2xl border border-emerald-500/30 overflow-hidden shadow-sm">
+                          <div className="bg-emerald-950/60 border-b border-emerald-500/30 px-4 py-3 flex items-center justify-between">
+                            <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">✅ Seguro</span>
+                            <span className="text-gray-500 text-[10px] uppercase">{sections[activePage].codeLanguage}</span>
+                          </div>
+                          <pre className="p-5 text-xs sm:text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed whitespace-pre-wrap">
+                            <code>{sections[activePage].secureCode}</code>
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tips */}
+                    <div className="flex flex-wrap gap-2 pb-2">
+                      {sections[activePage].tips?.map((tip, i) => (
+                        <span key={i} className="flex items-center gap-2 px-4 py-2 bg-[#00A99D]/10 border border-[#00A99D]/30 text-[#008B81] text-xs sm:text-sm rounded-full font-semibold">
+                          {tip}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Optional meme/image */}
+                    {sections[activePage].imageUrl && (
+                      <div className="flex justify-center pb-2">
+                        <div className="rounded-2xl overflow-hidden shadow-lg border-2 border-slate-200 max-w-[220px]">
+                          <img src={sections[activePage].imageUrl} alt="meme" className="w-full h-auto" />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* ── QUIZ SLIDE ── */}
+                {sections[activePage].type === 'quiz' && (
+                  <div className="flex flex-col gap-8 max-w-2xl mx-auto w-full">
+                    <div className="flex items-center gap-4">
+                      <span className="text-5xl sm:text-6xl select-none">{sections[activePage].icon}</span>
+                      <div>
+                        <h2 className="text-2xl sm:text-4xl font-black text-[#002F6C] tracking-wide leading-tight">
+                          {sections[activePage].title}
+                        </h2>
+                        <p className="text-[#00A99D] text-xs font-bold uppercase tracking-widest mt-1">
+                          {Object.keys(quizAnswers).length} / {quizQuestions.length} respondidas
+                        </p>
+                      </div>
+                    </div>
+
+                    {quizQuestions.map((q, qi) => {
+                      const answered = qi in quizAnswers
+                      const locked = qi > 0 && !((qi - 1) in quizAnswers)
+                      const chosen = quizAnswers[qi]
+                      const isRight = chosen === q.correctIndex
+                      return (
+                        <div key={qi} className={`flex flex-col gap-3 transition-opacity ${locked ? 'opacity-30 pointer-events-none' : ''}`}>
+                          <p className="text-[10px] font-black text-[#00A99D] uppercase tracking-widest">Pregunta {qi + 1}</p>
+                          <p className="text-slate-800 text-sm sm:text-base font-semibold leading-snug">{q.question}</p>
+                          <div className="flex flex-col gap-2">
+                            {q.options.map((opt, oi) => {
+                              const isSelected = chosen === oi
+                              const isCorrect = oi === q.correctIndex
+                              let bg = 'bg-white border-slate-200 hover:border-[#00A99D]/50 hover:bg-[#00A99D]/5 cursor-pointer active:scale-[0.98]'
+                              if (answered && isCorrect) bg = 'bg-emerald-50 border-emerald-400 cursor-default'
+                              else if (answered && isSelected && !isCorrect) bg = 'bg-red-50 border-red-400 cursor-default'
+                              else if (answered) bg = 'bg-white border-slate-100 opacity-60 cursor-default'
+                              return (
+                                <button
+                                  key={oi}
+                                  disabled={answered || locked}
+                                  onClick={() => setQuizAnswers((prev) => ({ ...prev, [qi]: oi }))}
+                                  className={`flex items-center gap-3 border-2 rounded-xl px-4 py-3 text-left transition-all ${bg}`}
+                                >
+                                  <span className="text-xl shrink-0">{opt.emoji}</span>
+                                  <span className="text-slate-700 text-sm font-medium leading-snug flex-1">{opt.label}</span>
+                                  {answered && isCorrect && <span className="text-emerald-500 shrink-0">✅</span>}
+                                  {answered && isSelected && !isCorrect && <span className="text-red-500 shrink-0">❌</span>}
+                                </button>
+                              )
+                            })}
+                          </div>
+                          {answered && (
+                            <div className={`rounded-xl px-4 py-3 text-xs leading-relaxed border ${isRight ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                              <span className="font-black mr-1">{isRight ? '¡Correcto! 🎉' : 'Recuerda:'}</span>{q.explanation}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+
+                    {quizAllAnswered && (
+                      <div className="rounded-2xl bg-[#002F6C] text-white p-6 text-center">
+                        <p className="text-2xl mb-2">
+                          {Object.values(quizAnswers).filter((a, qi) => a === quizQuestions[qi].correctIndex).length === quizQuestions.length ? '🏆 ¡Perfecto!' : '👍 ¡Bien hecho!'}
+                        </p>
+                        <p className="text-sm font-semibold opacity-80">
+                          {Object.values(quizAnswers).filter((a, qi) => a === quizQuestions[qi].correctIndex).length} de {quizQuestions.length} correctas
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-center p-10 min-h-[70vh]">
                 <div className="text-7xl mb-6 animate-bounce">🏆🇨🇴🎉</div>
                 <h3 className="text-3xl sm:text-5xl font-black text-[#002F6C] mb-4 tracking-wide leading-tight">
-                  ¡MÓDULOS<br />COMPLETADOS!
+                  ¡LECCIÓN<br />COMPLETADA!
                 </h3>
                 <p className="text-slate-500 text-sm sm:text-base mb-10 max-w-lg leading-relaxed">
-                  Completaste los 3 módulos de seguridad de Alegra. Ahora eres parte activa de la defensa del equipo. ¡La seguridad es responsabilidad de todos! 🛡️
+                  Completaste la lección de tratamiento de datos de Alegra. Ahora eres parte activa de la defensa del equipo. ¡La seguridad de datos es responsabilidad de todos! 🛡️
                 </p>
                 <button
                   onClick={handlePlayAgain}
@@ -562,7 +623,7 @@ export default function PenaltyGame() {
             )}
           </div>
 
-          {activePage < 3 && (
+          {activePage < sections.length && (
             <div className="flex items-center justify-between px-6 sm:px-10 py-5 border-t border-slate-200 bg-white shrink-0">
               <button
                 onClick={handlePrevPage}
@@ -573,9 +634,10 @@ export default function PenaltyGame() {
               </button>
               <button
                 onClick={handleNextPage}
-                className="px-8 py-3 rounded-full bg-[#00A99D] hover:bg-[#008B81] text-white text-xs font-black tracking-wider uppercase transition-all active:scale-95 shadow-lg"
+                disabled={isQuizSlide && !quizAllAnswered}
+                className="px-8 py-3 rounded-full bg-[#00A99D] hover:bg-[#008B81] text-white text-xs font-black tracking-wider uppercase transition-all active:scale-95 shadow-lg disabled:opacity-40 disabled:pointer-events-none"
               >
-                {activePage === 2 ? 'Finalizar lección 🏆' : 'Siguiente ➡'}
+                {activePage === lastContentIndex ? 'Ver resultados 🏆' : 'Siguiente ➡'}
               </button>
             </div>
           )}

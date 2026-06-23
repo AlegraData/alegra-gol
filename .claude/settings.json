@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "mcp__claude_ai_Alegra_Design_MCP__get_token",
-      "mcp__claude_ai_Alegra_Design_MCP__get_design_spec"
+      "mcp__claude_ai_Alegra_Design_MCP__get_design_spec",
+      "Skill(run)",
+      "Skill(run:*)",
+      "PowerShell(Start-Sleep -Seconds 5; \\(Invoke-WebRequest -Uri \"http://localhost:3000\" -UseBasicParsing -TimeoutSec 5\\).StatusCode)",
+      "Bash(npx playwright *)",
+      "Bash(node -e ' *)",
+      "PowerShell(npm list -g playwright 2>$null)",
+      "PowerShell(npm list -g @playwright/test 2>$null)",
+      "PowerShell(Copy-Item \"c:\\\\Users\\\\crist\\\\Documents\\\\Alegra\\\\Otros\\\\penaltis-seguridad\\\\dot-security-2.jpg\" -Destination \"c:\\\\Users\\\\crist\\\\Documents\\\\Alegra\\\\Otros\\\\penaltis-seguridad\\\\public\\\\dot-security-2.jpg\")"
     ]
   }
 }
