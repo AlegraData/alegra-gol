@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "⚽ Penaltis por la Seguridad | Alegra",
+  title: "Alegra Gol",
   description: "Juego interactivo de penaltis para reforzar la cultura de seguridad en Alegra. Aprende sobre datos sensibles, tokens expuestos y buenas prácticas mientras disfrutas del mundial.",
   openGraph: {
-    title: "⚽ Penaltis por la Seguridad | Alegra",
+    title: "Alegra Gol",
     description: "Aprende sobre seguridad de la información mientras cobras penaltis. ¡Colombia vs República del Congo!",
   },
 };
