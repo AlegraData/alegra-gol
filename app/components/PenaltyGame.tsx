@@ -236,6 +236,7 @@ export default function PenaltyGame() {
 
   const [gkName] = useState('Mosquera')
   const [gkDiveDir, setGkDiveDir] = useState<'left' | 'center' | 'right'>('center')
+  const [gkJumpDir, setGkJumpDir] = useState<'up' | 'down' | 'neutral'>('neutral')
   const [shotResult, setShotResult] = useState<'goal' | 'saved' | 'missed' | null>(null)
 
   const [showKickEffect, setShowKickEffect] = useState(false)
@@ -258,6 +259,7 @@ export default function PenaltyGame() {
 
     const gkChoice = (['left', 'center', 'right'] as const)[Math.floor(Math.random() * 3)]
     setGkDiveDir(gkChoice)
+    setGkJumpDir(verticalAim > 62 ? 'up' : verticalAim < 38 ? 'down' : 'neutral')
 
     setTimeout(() => {
       setShowKickEffect(false)
@@ -315,22 +317,26 @@ export default function PenaltyGame() {
     setTimeout(() => setShowIntroBall(false), 1500)
   }, [])
 
+  // Ball arc: H moves linearly, V eases-out (rises fast then decelerates) → parabolic arc
   const getBallTargetStyles = () => {
     if (phase === 'kicking' || phase === 'result') {
       const left = 25 + (horizontalAim / 100) * 50
-      const top = 5 + ((100 - verticalAim) / 100) * 35
+      const bottom = 100 - (5 + ((100 - verticalAim) / 100) * 35)
       return {
         left: `${left}%`,
-        top: `${top}%`,
-        transform: 'translate(-50%, -50%) scale(0.4)',
-        transition: 'left 0.9s cubic-bezier(0.25, 1, 0.5, 1), top 0.9s cubic-bezier(0.25, 1, 0.5, 1), transform 0.9s cubic-bezier(0.25, 1, 0.5, 1)',
-        opacity: (shotResult === 'saved' || shotResult === 'missed') && phase === 'result' ? 0.3 : 1,
+        bottom: `${bottom}%`,
+        top: 'auto',
+        transform: 'translateX(-50%) scale(0.38)',
+        transition: 'left 0.78s linear, bottom 0.78s cubic-bezier(0.05, 0, 0.2, 1), transform 0.78s ease',
+        opacity: (shotResult === 'saved' || shotResult === 'missed') && phase === 'result' ? 0.35 : 1,
       }
     }
     return {
       left: '50%',
       bottom: '22%',
-      transform: 'translateX(-50%) scale(1.1)',
+      top: 'auto',
+      transform: 'translateX(-50%) scale(1.15)',
+      transition: 'none',
     }
   }
 
@@ -688,11 +694,19 @@ export default function PenaltyGame() {
 
                 {/* Goalkeeper */}
                 <div
-                  className="absolute bottom-[2%] left-1/2 -translate-x-1/2 transition-all duration-500"
-                  style={phase === 'kicking' || phase === 'result' ? {
-                    transform: `translateX(-50%) translateX(${gkDiveDir === 'left' ? '-55px' : gkDiveDir === 'right' ? '55px' : '0px'}) translateY(${gkDiveDir === 'center' ? '-10px' : '5px'}) rotate(${gkDiveDir === 'left' ? '-45deg' : gkDiveDir === 'right' ? '45deg' : '0deg'})`,
-                    transition: 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                  } : {}}
+                  className="absolute bottom-[2%] left-1/2 -translate-x-1/2"
+                  style={phase === 'kicking' || phase === 'result' ? (() => {
+                    const xPx = gkDiveDir === 'left' ? -88 : gkDiveDir === 'right' ? 88 : 0
+                    const yPx = gkDiveDir === 'center'
+                      ? -22
+                      : gkJumpDir === 'up' ? -34 : gkJumpDir === 'down' ? 16 : -4
+                    const deg = gkDiveDir === 'left' ? -68 : gkDiveDir === 'right' ? 68 : 0
+                    const sx = gkDiveDir !== 'center' ? 1.25 : 1
+                    return {
+                      transform: `translateX(-50%) translateX(${xPx}px) translateY(${yPx}px) rotate(${deg}deg) scaleX(${sx})`,
+                      transition: 'transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    }
+                  })() : { transition: 'transform 0.2s ease' }}
                 >
                   <div className={`flex flex-col items-center ${shotResult === 'saved' && phase === 'result' ? 'animate-pulse-soft' : ''}`}>
                     <div className="relative">
@@ -755,27 +769,49 @@ export default function PenaltyGame() {
               {/* Kicker */}
               {(phase === 'aiming' || phase === 'kicking' || phase === 'result') && (
                 <div
-                  className="absolute bottom-[20%] left-1/2 -translate-x-1/2 z-10 transition-all"
-                  style={phase === 'kicking' ? { transform: 'translateX(-50%) translateY(-10px) scale(0.95)', opacity: 0.9, transition: 'all 0.5s ease-out' } : {}}
+                  className="absolute bottom-[20%] left-1/2 z-10"
+                  style={phase === 'kicking'
+                    ? { transform: 'translateX(-50%) translateY(-18px) rotate(-14deg) scale(0.88)', opacity: 0.82, transition: 'all 0.28s cubic-bezier(0.22, 1, 0.36, 1)', transformOrigin: 'bottom center' }
+                    : { transform: 'translateX(-50%)', transition: 'all 0.2s ease' }}
                 >
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-2 bg-black/45 blur-[2px] rounded-full -bottom-1 absolute" />
+                  <div className="flex flex-col items-center relative">
+                    {/* Shadow */}
+                    <div className="w-8 h-2 bg-black/45 blur-[2px] rounded-full absolute -bottom-1" />
+                    {/* Head */}
                     <div className="w-5 h-5 rounded-full bg-[#ffcd94] border border-[#e0b080] relative" style={{ boxShadow: 'inset 0 -2px 3px rgba(0,0,0,0.1)' }}>
                       <div className="absolute top-0.5 left-1/2 -translate-x-1/2 w-4 h-1.5 rounded-t-full bg-amber-950" />
                     </div>
+                    {/* Jersey */}
                     <div className="w-7 h-5 bg-[#FCD116] rounded-sm -mt-0.5 flex items-center justify-center relative shadow-sm">
                       <span className="text-[#003893] text-[6px] font-black">9</span>
                       <div className="absolute top-0.5 left-0.5 w-1.5 h-0.5 bg-[#CE1126] rounded-sm" />
                       <div className="absolute top-0.5 right-0.5 w-1.5 h-0.5 bg-[#CE1126] rounded-sm" />
                     </div>
+                    {/* Shorts */}
                     <div className="w-5.5 h-3 bg-[#003893] rounded-sm -mt-0.5" />
+                    {/* Socks — right leg kicks forward when shooting */}
                     <div className="flex gap-2 -mt-0.5">
                       <div className="w-1.5 h-3 bg-[#CE1126] rounded-b-xs" />
-                      <div className="w-1.5 h-3 bg-[#CE1126] rounded-b-xs" />
+                      <div
+                        className="w-1.5 bg-[#CE1126] rounded-b-xs"
+                        style={{
+                          height: phase === 'kicking' ? '6px' : '12px',
+                          transform: phase === 'kicking' ? 'translateX(6px) translateY(-4px) rotate(-40deg)' : 'none',
+                          transition: 'all 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
+                        }}
+                      />
                     </div>
+                    {/* Boots */}
                     <div className="flex gap-2 -mt-0.5">
                       <div className="w-2 h-1 bg-black rounded-xs" />
-                      <div className="w-2 h-1 bg-black rounded-xs" />
+                      <div
+                        className="h-1 bg-black rounded-xs"
+                        style={{
+                          width: phase === 'kicking' ? '14px' : '8px',
+                          transform: phase === 'kicking' ? 'translateX(8px) translateY(-8px) rotate(-40deg)' : 'none',
+                          transition: 'all 0.25s cubic-bezier(0.22, 1, 0.36, 1)',
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
@@ -788,10 +824,30 @@ export default function PenaltyGame() {
                 </div>
               )}
 
+              {/* Ball ground shadow — stays on pitch, tracks horizontal position */}
+              {(phase === 'aiming' || phase === 'kicking' || phase === 'result') && (
+                <div
+                  className="absolute z-10 rounded-full bg-black/30 blur-[3px]"
+                  style={{
+                    width: (phase === 'kicking' || phase === 'result') ? '10px' : '20px',
+                    height: (phase === 'kicking' || phase === 'result') ? '4px' : '8px',
+                    bottom: '21%',
+                    left: (phase === 'kicking' || phase === 'result')
+                      ? `${25 + (horizontalAim / 100) * 50}%`
+                      : '50%',
+                    transform: 'translateX(-50%)',
+                    transition: 'left 0.78s linear, width 0.78s ease, height 0.78s ease',
+                  }}
+                />
+              )}
+
               {/* Active ball */}
               {(phase === 'aiming' || phase === 'kicking' || phase === 'result') && (
                 <div className="absolute z-20" style={getBallTargetStyles()}>
-                  <div className="text-2xl drop-shadow-lg select-none" style={phase === 'kicking' ? { animation: 'spin 0.8s linear infinite' } : {}}>
+                  <div
+                    className="text-2xl drop-shadow-lg select-none"
+                    style={phase === 'kicking' ? { animation: 'spin 0.38s linear infinite' } : {}}
+                  >
                     ⚽
                   </div>
                 </div>
